@@ -22,7 +22,7 @@ public class AdminController {
     private final UserService userService;
 
     @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('VIEW_ADMIN')")
     public ResponseEntity<List<UserDto>> getAllUsers() {
         List<User> users = userService.findAllUsers();
         List<UserDto> userDtos = users.stream()
