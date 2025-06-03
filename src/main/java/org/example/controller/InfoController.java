@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("/api/v1")
 public class InfoController {
     private final List<String> stats = List.of(
             "MVC application",
@@ -23,5 +23,10 @@ public class InfoController {
     @GetMapping("/info")
     public String getInfo() {
         return stats.get(random.nextInt(stats.size()));
+    }
+
+    @GetMapping("/about")
+    public String getAbout() {
+        return "This is a public endpoint about the application for non-authenticated users.";
     }
 }
