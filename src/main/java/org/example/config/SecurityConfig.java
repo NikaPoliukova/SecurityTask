@@ -26,16 +26,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/v1/about", "/api/v1/info",
-                        "/api/v1/register", "/api/v1/login").permitAll()
+                // Публичные страницы и API:
+                .antMatchers("/login", "/logout-success", "/register", "/about").permitAll()
+                // REST эндпоинты:
+                .antMatchers("/api/v1/about").permitAll()
+                .antMatchers("/api/v1/info").hasAuthority("VIEW_INFO")
+                .antMatchers("/api/v1/admin").hasAuthority("VIEW_ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                .httpBasic()
+                .formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl("/perform_login")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/success-login", true)
+                .failureUrl("/login?error=true")
+                .permitAll()
                 .and()
-                .formLogin().disable()
-                .logout().permitAll();
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/logout-success")
+                .permitAll();
     }
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth

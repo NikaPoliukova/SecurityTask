@@ -1,46 +1,67 @@
 package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.LoginRequest;
 import org.example.dto.RegisterRequest;
 import org.example.entity.User;
 import org.example.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@RestController
-@RequestMapping("/api/v1")
+import java.security.Principal;
+
+@Controller
 @RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
 
 
+    @GetMapping("/login")
+    public String loginPage(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("errorMessage", "Invalid email or password");
+        }
+        return "login";
+    }
+
+    @GetMapping("/logout-success")
+    public String logoutPage() {
+        return "logout-success";
+    }
+
+    @GetMapping("/success-login")
+    public String loginSuccessPage(Principal principal, Model model) {
+        String email = principal.getName();
+        model.addAttribute("message", "User " + email + " successfully login");
+        return "success-login";
+    }
+    @GetMapping("/success-register")
+    public String registerSuccessPage(Principal principal, Model model) {
+        String email = principal.getName();
+        model.addAttribute("message", "User " + email + " successfully register");
+        return "success-register";
+    }
+
+
+    @GetMapping("/register")
+    public String registerPage() {
+        return "register";
+    }
+
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+    public String handleRegister(@ModelAttribute RegisterRequest request, Model model) {
         try {
             User user = userService.register(request);
-            return ResponseEntity.ok("User " + user.getEmail() + " successfully registered");
+            model.addAttribute("message", "User " + user.getEmail() + " successfully registered");
+            return "success-register";
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed");
+            model.addAttribute("errorMessage", e.getMessage());
+            return "register";
         }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
-        try {
-            String result = userService.login(request);
-            return ResponseEntity.ok(result);
-        } catch (UsernameNotFoundException | BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
-    }
 }
