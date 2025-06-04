@@ -1,6 +1,8 @@
 package org.example.config;
 
 import lombok.AllArgsConstructor;
+import org.example.handler.CustomAuthenticationFailureHandler;
+import org.example.handler.CustomAuthenticationSuccessHandler;
 import org.example.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,15 +22,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final CustomUserDetailsService userDetailsService;
+    private final CustomAuthenticationFailureHandler failureHandler;
+    private final CustomAuthenticationSuccessHandler successHandler;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                // Публичные страницы и API:
                 .antMatchers("/login", "/logout-success", "/register", "/about").permitAll()
-                // REST эндпоинты:
                 .antMatchers("/api/v1/about").permitAll()
                 .antMatchers("/api/v1/info").hasAuthority("VIEW_INFO")
                 .antMatchers("/api/v1/admin").hasAuthority("VIEW_ADMIN")
@@ -39,8 +41,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginProcessingUrl("/perform_login")
                 .usernameParameter("email")
                 .passwordParameter("password")
+                .successHandler(successHandler)
+                .failureHandler(failureHandler)
                 .defaultSuccessUrl("/success-login", true)
-                .failureUrl("/login?error=true")
                 .permitAll()
                 .and()
                 .logout()
@@ -48,6 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/logout-success")
                 .permitAll();
     }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth

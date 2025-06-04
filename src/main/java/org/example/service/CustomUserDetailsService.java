@@ -5,6 +5,7 @@ import org.example.entity.Permission;
 import org.example.entity.Role;
 import org.example.entity.User;
 import org.example.repository.UserRepository;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,10 +22,14 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    final UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final LoginAttemptService loginAttemptService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        if (loginAttemptService.isBlocked(email)) {
+            throw new LockedException("Too many login attempts. Try again in 5 minutes.");
+        }
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
@@ -44,11 +49,11 @@ public class CustomUserDetailsService implements UserDetailsService {
                 authorities
         );
     }
+
     private Collection<? extends GrantedAuthority> getAuthorities(User user) {
         return user.getRoles().stream()
                 .flatMap(role -> role.getPermissions().stream())
                 .map(permission -> new SimpleGrantedAuthority(permission.getName()))
                 .collect(Collectors.toSet());
     }
-
 }

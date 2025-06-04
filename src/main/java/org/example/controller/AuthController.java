@@ -21,12 +21,17 @@ public class AuthController {
 
 
     @GetMapping("/login")
-    public String loginPage(@RequestParam(value = "error", required = false) String error, Model model) {
-        if (error != null) {
+    public String loginPage(@RequestParam(value = "error", required = false) String error,
+                            @RequestParam(value = "blocked", required = false) String blocked,
+                            Model model) {
+        if (blocked != null) {
+            model.addAttribute("errorMessage", "Your account is temporarily locked. Try again in 5 minutes.");
+        } else if (error != null) {
             model.addAttribute("errorMessage", "Invalid email or password");
         }
         return "login";
     }
+
 
     @GetMapping("/logout-success")
     public String logoutPage() {
@@ -42,7 +47,7 @@ public class AuthController {
     @GetMapping("/success-register")
     public String registerSuccessPage(Principal principal, Model model) {
         String email = principal.getName();
-        model.addAttribute("message", "User " + email + " successfully register");
+        model.addAttribute("message",  email + " successfully register");
         return "success-register";
     }
 
