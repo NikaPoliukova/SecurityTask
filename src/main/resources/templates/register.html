@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head><title>Register</title></head>
+<body>
+<h2>Register</h2>
+<form method="post" action="/register">
+    <div>
+        <label>Email:</label>
+        <input type="email" name="email" required />
+    </div>
+    <div>
+        <label>Password:</label>
+        <input type="password" name="password" required />
+    </div>
+    <div>
+        <button type="submit">Register</button>
+    </div>
+    <div style="color:red;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+    <div style="color:green;">
+        <p th:text="${message}"></p>
+    </div>
+</form>
+<p><a href="/login">Back to login</a></p>
+</body>
+</html>

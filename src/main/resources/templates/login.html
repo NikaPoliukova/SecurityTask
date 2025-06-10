@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Login</title>
+</head>
+<body>
+<h2>Login</h2>
+
+<form method="post" action="/perform_login">
+    <div>
+        <label>Email:</label>
+        <input type="text" name="email" required />
+    </div>
+    <div>
+        <label>Password:</label>
+        <input type="password" name="password" required />
+    </div>
+    <div>
+        <button type="submit">Login</button>
+    </div>
+
+    <div style="color:red;">
+        <!-- Сообщение об ошибке (неверный пароль, блокировка и т.п.) -->
+        <p th:if="${errorMessage}" th:text="${errorMessage}"></p>
+    </div>
+</form>
+
+<p><a href="/register">Register</a></p>
+</body>
+</html>
