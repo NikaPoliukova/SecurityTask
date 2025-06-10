@@ -4,7 +4,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class LoginAttemptService {
@@ -35,5 +38,12 @@ public class LoginAttemptService {
     public boolean isBlocked(String email) {
         Integer attempts = attemptsCache.getIfPresent(email);
         return attempts != null && attempts >= MAX_ATTEMPTS;
+    }
+
+    public List<String> getBlockedUsers() {
+        return attemptsCache.asMap().entrySet().stream()
+                .filter(entry -> entry.getValue() >= MAX_ATTEMPTS)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 }

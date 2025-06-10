@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.UserDto;
 import org.example.entity.Role;
 import org.example.entity.User;
+import org.example.service.LoginAttemptService;
 import org.example.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class AdminController {
 
     private final UserService userService;
+    private final LoginAttemptService loginAttemptService;
 
     @GetMapping("/admin")
     @PreAuthorize("hasAuthority('VIEW_ADMIN')")
@@ -36,5 +38,12 @@ public class AdminController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(userDtos);
+    }
+
+    @GetMapping("/blocked")
+    @PreAuthorize("hasAuthority('VIEW_ADMIN')")
+    public ResponseEntity<List<String>> getBlockedUsers() {
+        List<String> blocked = loginAttemptService.getBlockedUsers();
+        return ResponseEntity.ok(blocked);
     }
 }
